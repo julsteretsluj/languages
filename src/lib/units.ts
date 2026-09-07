@@ -1,6 +1,7 @@
 import type { UnitDef } from "./types";
+import { UNIT_CEFR } from "./cefr";
 
-/** Pedagogical order: foundations → words → daily life → society → skills → media */
+/** Pedagogical order: foundations → words → daily life → society → skills → media (A1→C2). */
 export const UNITS: UnitDef[] = [
   {
     id: "grammar",
@@ -8,6 +9,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "How the language fits together",
     icon: "📐",
     color: "#FF2D95",
+    cefr: UNIT_CEFR.grammar,
   },
   {
     id: "alphabet",
@@ -15,6 +17,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Letters, fingerspelling, and phonetics",
     icon: "🔤",
     color: "#34C759",
+    cefr: UNIT_CEFR.alphabet,
   },
   {
     id: "pronouns",
@@ -22,6 +25,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "I, you, we, they — and pointing",
     icon: "👆",
     color: "#5856D6",
+    cefr: UNIT_CEFR.pronouns,
   },
   {
     id: "nouns",
@@ -29,6 +33,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "People, places, and things",
     icon: "📦",
     color: "#FF9500",
+    cefr: UNIT_CEFR.nouns,
   },
   {
     id: "verbs",
@@ -36,6 +41,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Actions and movement",
     icon: "⚡",
     color: "#FF2D55",
+    cefr: UNIT_CEFR.verbs,
   },
   {
     id: "adjectives",
@@ -43,6 +49,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Describe the world",
     icon: "✨",
     color: "#AF52DE",
+    cefr: UNIT_CEFR.adjectives,
   },
   {
     id: "colors",
@@ -50,6 +57,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Name every shade",
     icon: "🎨",
     color: "#FF3B30",
+    cefr: UNIT_CEFR.colors,
   },
   {
     id: "maths",
@@ -57,6 +65,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Numbers, counting, and quantities",
     icon: "🔢",
     color: "#30B0C7",
+    cefr: UNIT_CEFR.maths,
   },
   {
     id: "time",
@@ -64,6 +73,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Days, clocks, and calendars",
     icon: "⏰",
     color: "#64D2FF",
+    cefr: UNIT_CEFR.time,
   },
   {
     id: "emotions",
@@ -71,6 +81,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Feelings and expressions",
     icon: "💭",
     color: "#FF6482",
+    cefr: UNIT_CEFR.emotions,
   },
   {
     id: "body",
@@ -78,6 +89,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Head to toe vocabulary",
     icon: "🧍",
     color: "#AC8E68",
+    cefr: UNIT_CEFR.body,
   },
   {
     id: "senses",
@@ -85,6 +97,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "See, hear, touch, taste, smell",
     icon: "👁️",
     color: "#5AC8FA",
+    cefr: UNIT_CEFR.senses,
   },
   {
     id: "clothing",
@@ -92,6 +105,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "What we wear",
     icon: "👕",
     color: "#FF9F0A",
+    cefr: UNIT_CEFR.clothing,
   },
   {
     id: "food",
@@ -99,6 +113,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Meals, snacks, and beverages",
     icon: "🍽️",
     color: "#FF6B00",
+    cefr: UNIT_CEFR.food,
   },
   {
     id: "animals",
@@ -106,6 +121,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Creatures great and small",
     icon: "🐾",
     color: "#32ADE6",
+    cefr: UNIT_CEFR.animals,
   },
   {
     id: "furniture",
@@ -113,6 +129,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Rooms and household items",
     icon: "🪑",
     color: "#8E8E93",
+    cefr: UNIT_CEFR.furniture,
   },
   {
     id: "occupations",
@@ -120,6 +137,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Jobs and workplaces",
     icon: "💼",
     color: "#FF2D95",
+    cefr: UNIT_CEFR.occupations,
   },
   {
     id: "school",
@@ -127,6 +145,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Classroom language",
     icon: "📚",
     color: "#5856D6",
+    cefr: UNIT_CEFR.school,
   },
   {
     id: "travel",
@@ -134,6 +153,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Getting around and finding places",
     icon: "🧭",
     color: "#34C759",
+    cefr: UNIT_CEFR.travel,
   },
   {
     id: "countries",
@@ -141,6 +161,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Nations and nationalities",
     icon: "🌍",
     color: "#30B0C7",
+    cefr: UNIT_CEFR.countries,
   },
   {
     id: "culture",
@@ -148,6 +169,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Customs, values, and community",
     icon: "🎭",
     color: "#AF52DE",
+    cefr: UNIT_CEFR.culture,
   },
   {
     id: "medical",
@@ -155,6 +177,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Health and the clinic",
     icon: "🩺",
     color: "#FF2D55",
+    cefr: UNIT_CEFR.medical,
   },
   {
     id: "politics",
@@ -162,6 +185,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Government and civic life",
     icon: "🏛️",
     color: "#1D1D1F",
+    cefr: UNIT_CEFR.politics,
   },
   {
     id: "technology",
@@ -169,6 +193,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Devices and the digital world",
     icon: "💻",
     color: "#64D2FF",
+    cefr: UNIT_CEFR.technology,
   },
   {
     id: "psychology",
@@ -176,6 +201,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Mind, behavior, and wellbeing",
     icon: "🧠",
     color: "#BF5AF2",
+    cefr: UNIT_CEFR.psychology,
   },
   {
     id: "speaking",
@@ -183,6 +209,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Conversation fluency practice",
     icon: "💬",
     color: "#FF2D95",
+    cefr: UNIT_CEFR.speaking,
   },
   {
     id: "reading",
@@ -190,6 +217,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Decode written and signed text",
     icon: "📖",
     color: "#FF9500",
+    cefr: UNIT_CEFR.reading,
   },
   {
     id: "writing",
@@ -197,6 +225,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Compose clear sentences",
     icon: "✍️",
     color: "#FF6B00",
+    cefr: UNIT_CEFR.writing,
   },
   {
     id: "translating",
@@ -204,6 +233,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Move meaning between languages",
     icon: "🔄",
     color: "#5856D6",
+    cefr: UNIT_CEFR.translating,
   },
   {
     id: "slang",
@@ -211,6 +241,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Informal register (use carefully)",
     icon: "🙊",
     color: "#FF3B30",
+    cefr: UNIT_CEFR.slang,
   },
   {
     id: "quotes",
@@ -218,6 +249,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Proverbs and memorable lines",
     icon: "💬",
     color: "#AF52DE",
+    cefr: UNIT_CEFR.quotes,
   },
   {
     id: "media",
@@ -225,6 +257,7 @@ export const UNITS: UnitDef[] = [
     subtitle: "Stories, screens, and titles",
     icon: "🎬",
     color: "#FF2D55",
+    cefr: UNIT_CEFR.media,
   },
 ];
 

@@ -1,8 +1,10 @@
-import type { LanguageId, UnitId, VocabItem } from "../types";
+import { UNIT_CEFR } from "../cefr";
+import type { CefrLevel, LanguageId, UnitId, VocabItem } from "../types";
 import { ASL_VOCAB } from "./asl";
 import { BSL_VOCAB } from "./bsl";
 import { ISL_VOCAB } from "./isl";
 import { NZSL_VOCAB } from "./nzsl";
+import { TIER_BANKS } from "./tiers";
 
 type Bank = Record<UnitId, VocabItem[]>;
 
@@ -1588,6 +1590,38 @@ export const VOCAB: Record<LanguageId, Bank> = {
   spanish,
 };
 
+function withDefaultCefr(items: VocabItem[], unitId: UnitId): VocabItem[] {
+  const fallback: CefrLevel = "A1";
+  const unitLevel = UNIT_CEFR[unitId] ?? fallback;
+  return items.map((item) => ({
+    ...item,
+    cefr: item.cefr ?? (unitLevel === "A1" || unitLevel === "A2" ? "A1" : "A2"),
+  }));
+}
+
+function mergeVocab(base: VocabItem[], extra: VocabItem[]): VocabItem[] {
+  const seen = new Set<string>();
+  const out: VocabItem[] = [];
+  for (const item of [...base, ...extra]) {
+    const key = `${item.term.toLowerCase()}::${item.meaning.toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
 export function getVocab(languageId: LanguageId, unitId: UnitId): VocabItem[] {
-  return VOCAB[languageId][unitId] ?? [];
+  const base = withDefaultCefr(VOCAB[languageId][unitId] ?? [], unitId);
+  const tiers = TIER_BANKS[languageId]?.[unitId] ?? [];
+  // Every unit carries A1→C2 bands so finishing the path reaches mastery.
+  return mergeVocab(base, tiers);
+}
+
+export function getVocabByCefr(
+  languageId: LanguageId,
+  unitId: UnitId,
+  cefr: CefrLevel,
+): VocabItem[] {
+  return getVocab(languageId, unitId).filter((v) => (v.cefr ?? "A1") === cefr);
 }

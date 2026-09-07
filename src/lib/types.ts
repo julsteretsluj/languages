@@ -45,6 +45,8 @@ export type UnitId =
 
 export type Modality = "signed" | "spoken";
 
+export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+
 export type ExerciseType =
   | "multiple_choice"
   | "translate"
@@ -55,6 +57,8 @@ export type ExerciseType =
 export interface VocabItem {
   term: string;
   meaning: string;
+  /** CEFR / signed-proficiency band for this item */
+  cefr?: CefrLevel;
   hint?: string;
   romanization?: string;
   note?: string;
@@ -84,6 +88,8 @@ export interface UnitDef {
   subtitle: string;
   icon: string;
   color: string;
+  /** Highest CEFR band this unit is designed to reach */
+  cefr: CefrLevel;
 }
 
 export interface ExerciseMedia {
@@ -161,6 +167,7 @@ export interface Lesson {
   index: number;
   title: string;
   subtitle?: string;
+  cefr?: CefrLevel;
   xp: number;
   exercises: Exercise[];
 }

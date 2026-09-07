@@ -2,7 +2,7 @@
 
 import type { AppProgress, LanguageId, LanguageProgress, UnitId } from "./types";
 
-const KEY = "lingora-progress-v2";
+const KEY = "lingora-progress-v3";
 
 function emptyLang(): LanguageProgress {
   return {

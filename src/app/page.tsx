@@ -61,7 +61,7 @@ export default function HomePage() {
             </p>
             <p className="mt-5 flex flex-wrap gap-2 text-sm font-semibold">
               <span className="rounded-full bg-[#ff2d95]/15 px-3 py-1 text-primary">
-                {UNITS.length} units
+                {UNITS.length} units · A1→C2
               </span>
               <span className="rounded-full bg-[#00d4ff]/20 px-3 py-1 text-[#007a99]">
                 {LANGUAGES.length} languages
@@ -169,8 +169,9 @@ export default function HomePage() {
             <div>
               <h2 className="text-xl font-extrabold tracking-tight">Your learning path</h2>
               <p className="mt-1 max-w-2xl text-secondary">
-                Every language follows the same unit order — foundations first, then daily
-                life, society, and expressive skills.
+                Every language climbs from A1 foundations to C2 mastery — same unit order,
+                with CEFR-banded lessons inside each topic. Signed languages use a parallel
+                proficiency frame mapped to the same labels.
               </p>
             </div>
             <span className="inline-flex w-fit rounded-full bg-[#b8ff3c]/35 px-3 py-1 text-xs font-extrabold text-[#3d6b00]">

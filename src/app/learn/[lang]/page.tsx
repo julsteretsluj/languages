@@ -6,6 +6,7 @@ import { notFound, useParams } from "next/navigation";
 import { Check, Lock, Star } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { useProgress } from "@/components/ProgressProvider";
+import { CEFR_LEVELS, CEFR_META, cefrLabelForModality } from "@/lib/cefr";
 import { getLanguage } from "@/lib/languages";
 import {
   getNextLessonRef,
@@ -53,8 +54,32 @@ export default function LearnPathPage() {
             {language.description}
           </p>
           <p className="mt-4 inline-flex rounded-full bg-primary/15 px-3 py-1 text-sm font-extrabold text-primary">
-            {doneLessons}/{totalLessons} lessons
+            {doneLessons}/{totalLessons} lessons · path to C2
           </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+            {CEFR_LEVELS.map((level) => {
+              const unitsAtLevel = UNITS.filter((u) => u.cefr === level);
+              const doneAtLevel = unitsAtLevel.filter((u) =>
+                isUnitComplete(languageId, u.id, completed),
+              ).length;
+              const meta = CEFR_META[level];
+              const filled = doneAtLevel === unitsAtLevel.length && unitsAtLevel.length > 0;
+              return (
+                <span
+                  key={level}
+                  className="rounded-full px-2.5 py-1 text-xs font-extrabold"
+                  style={{
+                    background: filled ? meta.color : `${meta.color}22`,
+                    color: filled ? "#fff" : meta.color,
+                  }}
+                  title={`${cefrLabelForModality(level, language.modality)} — ${meta.blurb}`}
+                >
+                  {cefrLabelForModality(level, language.modality)}
+                  {unitsAtLevel.length > 0 ? ` ${doneAtLevel}/${unitsAtLevel.length}` : ""}
+                </span>
+              );
+            })}
+          </div>
           {languageId === "asl" && (
             <p className="mt-3 text-sm text-secondary">
               Sign videos from{" "}
@@ -181,7 +206,7 @@ export default function LearnPathPage() {
                   </div>
                   <p className="text-sm text-secondary">{unit.subtitle}</p>
                   <p className="mt-1 text-xs font-semibold text-tertiary">
-                    {Math.min(doneInUnit, lessonCount)}/{lessonCount} lessons
+                    {Math.min(doneInUnit, lessonCount)}/{lessonCount} lessons · to C2
                   </p>
                   {isNext && (
                     <p className="mt-1 text-xs font-extrabold text-primary">
@@ -189,8 +214,11 @@ export default function LearnPathPage() {
                     </p>
                   )}
                 </div>
-                <span className="text-xs font-semibold text-tertiary">
-                  {lessonCount}×
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-extrabold text-white"
+                  style={{ background: CEFR_META[unit.cefr].color }}
+                >
+                  {unit.cefr}+
                 </span>
               </div>
             );

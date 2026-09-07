@@ -1,8 +1,10 @@
 import { getVocab } from "./content/vocab";
+import { CEFR_LEVELS, CEFR_META, cefrIndex } from "./cefr";
 import { getLanguage } from "./languages";
 import { toSignaslSlug } from "./signasl";
 import { toSignbslSlug } from "./signbsl";
 import type {
+  CefrLevel,
   Exercise,
   LanguageId,
   Lesson,
@@ -27,6 +29,7 @@ type LessonSpec = {
   subtitle: string;
   items: VocabItem[];
   xp: number;
+  cefr: CefrLevel;
 };
 
 function hashSeed(...parts: (string | number)[]): number {
@@ -382,7 +385,7 @@ function buildExercisesForSpec(
   return exercises;
 }
 
-/** Build the densest practical lesson plan for a unit's vocab. */
+/** Build CEFR-banded lessons — every unit climbs A1→C2. */
 export function getUnitLessonSpecs(
   languageId: LanguageId,
   unitId: UnitId,
@@ -391,101 +394,73 @@ export function getUnitLessonSpecs(
   if (!vocab.length) return [];
 
   const specs: LessonSpec[] = [];
+  const chunkSize = 5;
 
-  // 1) Focus lesson per vocab item
-  vocab.forEach((item, idx) => {
-    specs.push({
-      kind: "focus",
-      title: `Focus: ${item.term}`,
-      subtitle: item.meaning.split(" / ")[0],
-      items: [item],
-      xp: 12,
-    });
-    // Extra deep-dive for each item (production heavy)
-    specs.push({
-      kind: "from_en",
-      title: `Produce: ${item.term}`,
-      subtitle: `Say/sign “${item.meaning.split(" / ")[0]}”`,
-      items: [item],
-      xp: 10,
-    });
-    specs.push({
-      kind: "true_false",
-      title: `Check: ${item.term}`,
-      subtitle: "True or false drills",
-      items: [item, ...vocab.filter((_, j) => j !== idx).slice(0, 2)],
-      xp: 10,
-    });
-  });
+  for (const level of CEFR_LEVELS) {
+    const band = vocab.filter((v) => (v.cefr ?? "A1") === level);
+    if (!band.length) continue;
 
-  // 2) Adjacent pairs
-  for (let i = 0; i < vocab.length - 1; i++) {
-    const pair = [vocab[i], vocab[i + 1]];
+    const meta = CEFR_META[level];
+    const chunks: VocabItem[][] = [];
+    for (let i = 0; i < band.length; i += chunkSize) {
+      chunks.push(band.slice(i, i + chunkSize));
+    }
+
+    chunks.forEach((chunk, ci) => {
+      const pack = ci + 1;
+      specs.push({
+        kind: "focus",
+        title: `${level} pack ${pack}: learn`,
+        subtitle: `${meta.title} · ${chunk.map((c) => c.term).join(", ")}`,
+        items: chunk,
+        xp: 12 + cefrIndex(level) * 2,
+        cefr: level,
+      });
+      specs.push({
+        kind: "from_en",
+        title: `${level} pack ${pack}: produce`,
+        subtitle: `Produce ${level} forms`,
+        items: chunk,
+        xp: 12 + cefrIndex(level) * 2,
+        cefr: level,
+      });
+      if (chunk.length >= 2) {
+        specs.push({
+          kind: "match",
+          title: `${level} pack ${pack}: match`,
+          subtitle: "Connect terms to meanings",
+          items: chunk,
+          xp: 10 + cefrIndex(level) * 2,
+          cefr: level,
+        });
+      }
+      specs.push({
+        kind: "true_false",
+        title: `${level} pack ${pack}: check`,
+        subtitle: "Quick accuracy checks",
+        items: chunk,
+        xp: 10 + cefrIndex(level),
+        cefr: level,
+      });
+    });
+
     specs.push({
-      kind: "pair",
-      title: `Pair ${i + 1}: ${pair[0].term} & ${pair[1].term}`,
-      subtitle: "Two-term practice",
-      items: pair,
-      xp: 14,
+      kind: "mixed",
+      title: `${level} band challenge`,
+      subtitle: meta.blurb,
+      items: band,
+      xp: 18 + cefrIndex(level) * 3,
+      cefr: level,
     });
   }
 
-  // 3) Sliding trios
-  for (let i = 0; i < vocab.length - 2; i++) {
-    const trio = vocab.slice(i, i + 3);
-    specs.push({
-      kind: "trio",
-      title: `Trio ${i + 1}`,
-      subtitle: trio.map((t) => t.term).join(" · "),
-      items: trio,
-      xp: 16,
-    });
-  }
-
-  // 4) Whole-unit reviews
-  specs.push({
-    kind: "match",
-    title: "Match review",
-    subtitle: "Connect every term to its meaning",
-    items: vocab,
-    xp: 15,
-  });
-  specs.push({
-    kind: "to_en",
-    title: "Translate to English",
-    subtitle: "Recognize every term in this unit",
-    items: vocab,
-    xp: 15,
-  });
-  specs.push({
-    kind: "from_en",
-    title: "Translate from English",
-    subtitle: "Produce every term in this unit",
-    items: vocab,
-    xp: 15,
-  });
-  specs.push({
-    kind: "true_false",
-    title: "True / false gauntlet",
-    subtitle: "Speed checks across the unit",
-    items: vocab,
-    xp: 15,
-  });
   specs.push({
     kind: "mixed",
-    title: "Unit challenge",
-    subtitle: "Mixed skills — final boss of this unit",
+    title: "C2 unit mastery",
+    subtitle: `Finish ${unitId} at ${CEFR_META.C2.title}`,
     items: vocab,
-    xp: 20,
-  });
-
-  // 5) Reverse-order mixed pass for more practice
-  specs.push({
-    kind: "mixed",
-    title: "Bonus remix",
-    subtitle: "Same unit, reshuffled challenge",
-    items: [...vocab].reverse(),
-    xp: 18,
+    xp: 40,
+    cefr: "C2",
   });
 
   return specs;
@@ -505,7 +480,9 @@ export function getLesson(
   const specs = getUnitLessonSpecs(languageId, unitId);
   const spec = specs[lessonIndex - 1];
   if (!spec) return null;
-  const pool = getVocab(languageId, unitId);
+  const pool = getVocab(languageId, unitId).filter(
+    (v) => cefrIndex(v.cefr ?? "A1") <= cefrIndex(spec.cefr),
+  );
 
   return {
     id: `${languageId}-${unitId}-L${lessonIndex}`,
@@ -514,6 +491,7 @@ export function getLesson(
     index: lessonIndex,
     title: spec.title,
     subtitle: spec.subtitle,
+    cefr: spec.cefr,
     xp: spec.xp,
     exercises: buildExercisesForSpec(languageId, unitId, lessonIndex, spec, pool),
   };
