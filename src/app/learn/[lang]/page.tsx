@@ -42,11 +42,63 @@ export default function LearnPathPage() {
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-secondary">
             {language.description}
           </p>
+          {languageId === "asl" && (
+            <p className="mt-3 text-sm text-secondary">
+              Sign videos from{" "}
+              <a
+                href="https://www.signasl.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                SignASL.org
+              </a>
+            </p>
+          )}
+          {languageId === "bsl" && (
+            <p className="mt-3 text-sm text-secondary">
+              Sign videos from{" "}
+              <a
+                href="https://www.signbsl.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                SignBSL.com
+              </a>
+            </p>
+          )}
+          {languageId === "isl" && (
+            <p className="mt-3 text-sm text-secondary">
+              Sign videos from{" "}
+              <a
+                href="https://sonastik.ead.ee/embed/en/word-list"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                sonastik.ead.ee
+              </a>
+            </p>
+          )}
+          {languageId === "nzsl" && (
+            <p className="mt-3 text-sm text-secondary">
+              Sign videos from{" "}
+              <a
+                href="https://www.nzsl.nz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                NZSL.nz
+              </a>
+            </p>
+          )}
           {lp && lp.hearts === 0 && (
             <button
               type="button"
               onClick={() => resetHearts(languageId)}
-              className="mt-4 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover)]"
+              className="btn-hot mt-4 rounded-full px-5 py-2.5 text-sm font-extrabold"
             >
               Refill hearts to continue
             </button>

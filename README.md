@@ -21,6 +21,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Sign videos
+
+- **ASL** — [SignASL.org](https://www.signasl.org/) (`/sign/{word}`)
+- **BSL** — [SignBSL.com](https://www.signbsl.com/) (`/sign/{word}`)
+- **International Sign** — [sonastik.ead.ee](https://sonastik.ead.ee/embed/en/word-list)
+- **NZSL** — [NZSL Online](https://www.nzsl.nz/) (`/signs/{id}`)
+
+Dictionary links and attribution appear on every matching exercise.
+
 ## Stack
 
 Next.js 16 · React 19 · TypeScript · Tailwind CSS v4

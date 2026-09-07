@@ -7,8 +7,8 @@ export const LANGUAGES: Language[] = [
     nativeName: "ASL",
     flag: "🤟",
     modality: "signed",
-    accent: "#007AFF",
-    description: "The primary signed language of Deaf communities in the US and parts of Canada.",
+    accent: "#FF2D95",
+    description: "The primary signed language of Deaf communities in the US and parts of Canada. Videos via SignASL.org.",
   },
   {
     id: "bsl",
@@ -17,7 +17,7 @@ export const LANGUAGES: Language[] = [
     flag: "🙌",
     modality: "signed",
     accent: "#FF2D55",
-    description: "The signed language of the British Deaf community — distinct from ASL.",
+    description: "The signed language of the British Deaf community — distinct from ASL. Videos via SignBSL.com.",
   },
   {
     id: "isl",
@@ -26,7 +26,7 @@ export const LANGUAGES: Language[] = [
     flag: "🌐",
     modality: "signed",
     accent: "#5856D6",
-    description: "A contact signed system used at international Deaf gatherings and events.",
+    description: "A contact signed system used at international Deaf gatherings and events. Videos via sonastik.ead.ee.",
   },
   {
     id: "nzsl",
@@ -35,7 +35,7 @@ export const LANGUAGES: Language[] = [
     flag: "🇳🇿",
     modality: "signed",
     accent: "#000000",
-    description: "An official language of Aotearoa New Zealand, related to BSL and Auslan.",
+    description: "An official language of Aotearoa New Zealand, related to BSL and Auslan. Videos via NZSL.nz.",
   },
   {
     id: "maori",

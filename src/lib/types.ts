@@ -58,6 +58,14 @@ export interface VocabItem {
   hint?: string;
   romanization?: string;
   note?: string;
+  /** SignASL.org dictionary slug — https://www.signasl.org/sign/{signasl} */
+  signasl?: string;
+  /** SignBSL.com dictionary slug — https://www.signbsl.com/sign/{signbsl} */
+  signbsl?: string;
+  /** sonastik.ead.ee International Sign word ID — /embed/en/search?word={sonastik} */
+  sonastik?: string;
+  /** NZSL Online sign ID — https://www.nzsl.nz/signs/{nzsl} */
+  nzsl?: string;
 }
 
 export interface Language {
@@ -78,7 +86,18 @@ export interface UnitDef {
   color: string;
 }
 
-export interface MultipleChoiceExercise {
+export interface ExerciseMedia {
+  /** SignASL.org dictionary slug for ASL video reference */
+  signaslSlug?: string;
+  /** SignBSL.com dictionary slug for BSL video reference */
+  signbslSlug?: string;
+  /** sonastik.ead.ee International Sign word ID */
+  sonastikId?: string;
+  /** NZSL Online sign ID */
+  nzslId?: string;
+}
+
+export interface MultipleChoiceExercise extends ExerciseMedia {
   type: "multiple_choice";
   id: string;
   prompt: string;
@@ -87,7 +106,7 @@ export interface MultipleChoiceExercise {
   explanation?: string;
 }
 
-export interface TranslateExercise {
+export interface TranslateExercise extends ExerciseMedia {
   type: "translate";
   id: string;
   prompt: string;
@@ -96,14 +115,21 @@ export interface TranslateExercise {
   hint?: string;
 }
 
-export interface MatchExercise {
+export interface MatchExercise extends ExerciseMedia {
   type: "match";
   id: string;
   prompt: string;
-  pairs: { left: string; right: string }[];
+  pairs: {
+    left: string;
+    right: string;
+    signaslSlug?: string;
+    signbslSlug?: string;
+    sonastikId?: string;
+    nzslId?: string;
+  }[];
 }
 
-export interface FillBlankExercise {
+export interface FillBlankExercise extends ExerciseMedia {
   type: "fill_blank";
   id: string;
   prompt: string;
@@ -112,7 +138,7 @@ export interface FillBlankExercise {
   hint?: string;
 }
 
-export interface TrueFalseExercise {
+export interface TrueFalseExercise extends ExerciseMedia {
   type: "true_false";
   id: string;
   prompt: string;

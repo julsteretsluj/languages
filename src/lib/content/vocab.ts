@@ -1,4 +1,8 @@
 import type { LanguageId, UnitId, VocabItem } from "../types";
+import { ASL_VOCAB } from "./asl";
+import { BSL_VOCAB } from "./bsl";
+import { ISL_VOCAB } from "./isl";
+import { NZSL_VOCAB } from "./nzsl";
 
 type Bank = Record<UnitId, VocabItem[]>;
 
@@ -262,99 +266,19 @@ const signedShared = {
 } satisfies Bank;
 
 function aslBank(): Bank {
-  return {
-    ...signedShared,
-    grammar: [
-      ...signedShared.grammar,
-      { term: "ASL word order", meaning: "Often TIME-TOPIC-COMMENT", hint: "Not English SVO always" },
-    ],
-    alphabet: [
-      ...signedShared.alphabet,
-      { term: "ASL alphabet", meaning: "One-handed fingerspelling system", hint: "Different from BSL" },
-    ],
-  };
+  return ASL_VOCAB;
 }
 
 function bslBank(): Bank {
-  return {
-    ...signedShared,
-    alphabet: [
-      { term: "BSL alphabet", meaning: "Two-handed fingerspelling system", hint: "Different from ASL" },
-      { term: "A", meaning: "Right index on left thumb tip", hint: "Two-handed A" },
-      { term: "B", meaning: "Right flat fingers on left palm", hint: "Two-handed B" },
-      { term: "Name sign", meaning: "Personal identifying sign", hint: "Assigned in community" },
-      { term: "Fingerspelling", meaning: "Spell with both hands", hint: "UK system" },
-      { term: "BSL grammar", meaning: "Topic-comment + non-manuals", hint: "Not signed English" },
-    ],
-    countries: [
-      { term: "BRITAIN", meaning: "UK / Britain", hint: "Common BSL country sign" },
-      { term: "SCOTLAND", meaning: "Scotland", hint: "Regional sign" },
-      { term: "IRELAND", meaning: "Ireland", hint: "Regional sign" },
-      { term: "FRANCE", meaning: "France", hint: "Country sign" },
-      { term: "AMERICA", meaning: "USA", hint: "Country sign" },
-      { term: "AUSTRALIA", meaning: "Australia", hint: "Related to Auslan/BSL family" },
-    ],
-    slang: [
-      { term: "Brilliant", meaning: "Great (informal UK)", hint: "Positive informal", note: "Casual praise" },
-      { term: "Knackered", meaning: "Exhausted (slang)", hint: "Very tired", note: "Informal UK English gloss" },
-      { term: "Cheeky", meaning: "Playfully rude", hint: "Informal", note: "Mild" },
-      { term: "Bloody", meaning: "Emphatic mild swear", hint: "UK intensifier", note: "Mild curse — careful" },
-      { term: "Shut it", meaning: "Stop talking (rude)", hint: "Rude", note: "Avoid in polite settings" },
-      { term: "Mate", meaning: "Friend (informal)", hint: "Casual address", note: "Friendly informal" },
-    ],
-  };
+  return BSL_VOCAB;
 }
 
 function islBank(): Bank {
-  return {
-    ...signedShared,
-    grammar: [
-      { term: "International Sign", meaning: "Contact signing across Deaf communities", hint: "Not a full native language like ASL" },
-      { term: "Iconicity", meaning: "Signs that look like meaning", hint: "Heavy use in IS" },
-      { term: "Gesture blend", meaning: "Mix of mime and shared signs", hint: "Common at WFD events" },
-      { term: "Slow signing", meaning: "Clearer pace for mixed audiences", hint: "Clarity over speed" },
-      { term: "Shared lexicon", meaning: "Signs widely understood internationally", hint: "Family, numbers, etc." },
-      { term: "Mouthing", meaning: "Mouth patterns may vary by region", hint: "Don't assume one language" },
-    ],
-    culture: [
-      { term: "WFD", meaning: "World Federation of the Deaf", hint: "International body" },
-      { term: "Deaflympics", meaning: "International Deaf sports", hint: "Global event" },
-      { term: "Interpreter", meaning: "Language bridge worker", hint: "Often IS + national SLs" },
-      { term: "Congress", meaning: "Large formal meeting", hint: "IS common there" },
-      { term: "Access", meaning: "Ability to participate fully", hint: "Core Deaf right" },
-      { term: "Solidarity", meaning: "Standing together", hint: "Community value" },
-    ],
-  };
+  return ISL_VOCAB;
 }
 
 function nzslBank(): Bank {
-  return {
-    ...signedShared,
-    alphabet: [
-      { term: "NZSL alphabet", meaning: "Two-handed system related to BSL", hint: "Aotearoa" },
-      { term: "Fingerspelling", meaning: "Spell with both hands", hint: "BSL-family" },
-      { term: "Māori loan", meaning: "Signs influenced by te reo / culture", hint: "Local lexicon" },
-      { term: "Name sign", meaning: "Personal NZSL name", hint: "Community given" },
-      { term: "Official language", meaning: "NZSL is official in NZ", hint: "Since 2006" },
-      { term: "Regional variation", meaning: "Signs differ across NZ", hint: "North/South variants" },
-    ],
-    countries: [
-      { term: "NEW ZEALAND", meaning: "Aotearoa New Zealand", hint: "Home of NZSL" },
-      { term: "AUSTRALIA", meaning: "Australia", hint: "Auslan cousin" },
-      { term: "ENGLAND", meaning: "England", hint: "BSL family link" },
-      { term: "SAMOA", meaning: "Samoa", hint: "Pacific neighbour" },
-      { term: "COOK ISLANDS", meaning: "Cook Islands", hint: "Realm of NZ" },
-      { term: "FIJI", meaning: "Fiji", hint: "Pacific neighbour" },
-    ],
-    culture: [
-      { term: "Aotearoa", meaning: "Māori name for New Zealand", hint: "Land of the long white cloud" },
-      { term: "Deaf Aotearoa", meaning: "National Deaf organisation", hint: "Advocacy body" },
-      { term: "Marae", meaning: "Māori meeting grounds", hint: "Cultural space" },
-      { term: "Bilingual", meaning: "NZSL + English (and te reo)", hint: "Many Deaf NZers" },
-      { term: "Kia ora", meaning: "Greeting often used in NZ", hint: "Borrowed spoken greeting" },
-      { term: "Whānau", meaning: "Extended family", hint: "Important cultural concept" },
-    ],
-  };
+  return NZSL_VOCAB;
 }
 
 const maori: Bank = {

@@ -1,20 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f2f2f7;
+  --bg: #fff0f7;
   --surface: #ffffff;
-  --ink: #1d1d1f;
-  --secondary: #6e6e73;
-  --tertiary: #aeaeb2;
-  --primary: #007aff;
-  --primary-hover: #0077ed;
-  --border: #d1d1d6;
-  --border-soft: rgba(60, 60, 67, 0.29);
-  --success: #34c759;
-  --danger: #ff3b30;
-  --warning: #ff9500;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ink: #2a0a1f;
+  --secondary: #7a3a62;
+  --tertiary: #c48aaa;
+  --primary: #ff2d95;
+  --primary-hover: #e0177c;
+  --accent-cyan: #00d4ff;
+  --accent-yellow: #ffe14d;
+  --accent-lime: #b8ff3c;
+  --accent-orange: #ff7a18;
+  --accent-violet: #9b5cff;
+  --border: #ffc2e0;
+  --border-soft: rgba(255, 45, 149, 0.22);
+  --success: #19c37d;
+  --danger: #ff3b5c;
+  --warning: #ff9f1a;
+  --shadow: 0 8px 28px rgba(255, 45, 149, 0.14);
+  --shadow-strong: 0 12px 36px rgba(255, 45, 149, 0.22);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --grad-hero: radial-gradient(ellipse 90% 70% at 100% -10%, rgba(255, 45, 149, 0.35), transparent 55%),
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(0, 212, 255, 0.28), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 70% 80%, rgba(255, 225, 77, 0.35), transparent 45%);
+  --grad-btn: linear-gradient(135deg, #ff2d95 0%, #ff7a18 55%, #ffe14d 120%);
+  --pattern: radial-gradient(circle at 20% 20%, rgba(255, 45, 149, 0.08) 0 2px, transparent 2px),
+    radial-gradient(circle at 80% 40%, rgba(0, 212, 255, 0.08) 0 2px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(155, 92, 255, 0.07) 0 2px, transparent 2px);
 }
 
 @theme inline {
@@ -28,7 +41,12 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
-  --font-sans: var(--font-inter);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-lime: var(--accent-lime);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-violet: var(--accent-violet);
+  --font-sans: var(--font-display);
 }
 
 * {
@@ -40,10 +58,11 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--pattern);
+  background-size: 28px 28px;
   color: var(--ink);
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Segoe UI", sans-serif;
+  font-family: var(--font-display), "Avenir Next", "Segoe UI", sans-serif;
   margin: 0;
   min-height: 100dvh;
 }
@@ -53,10 +72,14 @@ input {
   font: inherit;
 }
 
+::selection {
+  background: rgba(255, 45, 149, 0.25);
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -78,15 +101,24 @@ input {
 @keyframes path-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.35);
+    box-shadow: 0 0 0 0 rgba(255, 45, 149, 0.45);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(0, 122, 255, 0);
+    box-shadow: 0 0 0 12px rgba(255, 45, 149, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
   }
 }
 
 .animate-fade-up {
-  animation: fade-up 0.4s var(--ease) both;
+  animation: fade-up 0.45s var(--ease) both;
 }
 
 .animate-pop {
@@ -95,4 +127,38 @@ input {
 
 .pulse-next {
   animation: path-pulse 2s ease-in-out infinite;
+}
+
+.btn-hot {
+  background: var(--grad-btn);
+  background-size: 160% 160%;
+  color: white;
+  border: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
+}
+
+.btn-hot:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.chip-cyan {
+  background: rgba(0, 212, 255, 0.16);
+  color: #007a99;
+}
+
+.chip-yellow {
+  background: rgba(255, 225, 77, 0.35);
+  color: #8a6a00;
+}
+
+.chip-lime {
+  background: rgba(184, 255, 60, 0.28);
+  color: #3d6b00;
+}
+
+.chip-violet {
+  background: rgba(155, 92, 255, 0.16);
+  color: #5b20c7;
 }

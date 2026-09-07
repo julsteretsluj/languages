@@ -7,7 +7,7 @@ export const UNITS: UnitDef[] = [
     title: "Grammar",
     subtitle: "How the language fits together",
     icon: "📐",
-    color: "#007AFF",
+    color: "#FF2D95",
   },
   {
     id: "alphabet",
@@ -119,7 +119,7 @@ export const UNITS: UnitDef[] = [
     title: "Occupations",
     subtitle: "Jobs and workplaces",
     icon: "💼",
-    color: "#007AFF",
+    color: "#FF2D95",
   },
   {
     id: "school",
@@ -182,7 +182,7 @@ export const UNITS: UnitDef[] = [
     title: "Speaking / Signing",
     subtitle: "Conversation fluency practice",
     icon: "💬",
-    color: "#007AFF",
+    color: "#FF2D95",
   },
   {
     id: "reading",

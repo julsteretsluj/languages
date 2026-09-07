@@ -51,7 +51,7 @@ export default function LessonPage() {
           </p>
           <Link
             href={`/learn/${languageId}`}
-            className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white"
+            className="btn-hot mt-6 inline-flex rounded-full px-5 py-2.5 text-sm font-extrabold"
           >
             Back to path
           </Link>
@@ -73,7 +73,7 @@ export default function LessonPage() {
           <button
             type="button"
             onClick={() => resetHearts(languageId)}
-            className="mt-6 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white"
+            className="btn-hot mt-6 rounded-full px-5 py-2.5 text-sm font-extrabold"
           >
             Refill hearts
           </button>
