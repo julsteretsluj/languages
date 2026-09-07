@@ -77,7 +77,7 @@ export default function HomePage() {
           <div className="mb-5">
             <h2 className="text-2xl font-extrabold tracking-tight">Choose a language</h2>
             <p className="mt-1 text-secondary">
-              Start anywhere. Progress is saved on this device.
+              Start anywhere. Sign in to save progress to your account — or learn as a guest on this device.
             </p>
           </div>
 

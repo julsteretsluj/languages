@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import { AuthProvider } from "@/components/AuthProvider";
 import { ProgressProvider } from "@/components/ProgressProvider";
 import "./globals.css";
 
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${nunito.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-bg text-ink">
-        <ProgressProvider>{children}</ProgressProvider>
+        <AuthProvider>
+          <ProgressProvider>{children}</ProgressProvider>
+        </AuthProvider>
       </body>
     </html>
   );
