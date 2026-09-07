@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { useProgress } from "@/components/ProgressProvider";
 import { LANGUAGES } from "@/lib/languages";
+import { getTotalLessonCount, isUnitComplete } from "@/lib/lessons";
 import { getLangProgress } from "@/lib/progress";
 import { UNITS } from "@/lib/units";
 import type { LanguageId } from "@/lib/types";
@@ -83,8 +84,15 @@ export default function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {LANGUAGES.map((lang, index) => {
               const lp = ready ? getLangProgress(progress, lang.id) : null;
-              const done = lp?.completedLessons.length ?? 0;
-              const pct = Math.round((done / UNITS.length) * 100);
+              const completed = lp?.completedLessons ?? [];
+              const total = getTotalLessonCount(lang.id);
+              const done = completed.filter((id) =>
+                id.startsWith(`${lang.id}-`),
+              ).length;
+              const unitsDone = UNITS.filter((u) =>
+                isUnitComplete(lang.id, u.id, completed),
+              ).length;
+              const pct = total ? Math.round((done / total) * 100) : 0;
               const chip = CHIP_STYLES[index % CHIP_STYLES.length];
 
               return (
@@ -129,7 +137,7 @@ export default function HomePage() {
                     <div className="relative mt-4">
                       <div className="mb-1 flex justify-between text-xs font-semibold text-tertiary">
                         <span>
-                          {done}/{UNITS.length} units
+                          {done}/{total} lessons · {unitsDone}/{UNITS.length} units
                         </span>
                         <span>{pct}%</span>
                       </div>

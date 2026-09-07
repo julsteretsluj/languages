@@ -158,7 +158,9 @@ export interface Lesson {
   id: string;
   languageId: LanguageId;
   unitId: UnitId;
+  index: number;
   title: string;
+  subtitle?: string;
   xp: number;
   exercises: Exercise[];
 }

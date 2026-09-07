@@ -7,6 +7,12 @@ import { Check, Lock, Star } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { useProgress } from "@/components/ProgressProvider";
 import { getLanguage } from "@/lib/languages";
+import {
+  getNextLessonRef,
+  getTotalLessonCount,
+  getUnitLessonCount,
+  isUnitComplete,
+} from "@/lib/lessons";
 import { getLangProgress } from "@/lib/progress";
 import type { LanguageId } from "@/lib/types";
 import { UNITS } from "@/lib/units";
@@ -26,10 +32,12 @@ export default function LearnPathPage() {
 
   const languageId = language.id as LanguageId;
   const lp = ready ? getLangProgress(progress, languageId) : null;
-
-  const completed = new Set(lp?.completedLessons ?? []);
-  let nextIndex = UNITS.findIndex((u) => !completed.has(`${languageId}-${u.id}`));
-  if (nextIndex < 0) nextIndex = UNITS.length - 1;
+  const completed = lp?.completedLessons ?? [];
+  const totalLessons = getTotalLessonCount(languageId);
+  const doneLessons = completed.filter((id) =>
+    id.startsWith(`${languageId}-`),
+  ).length;
+  const next = getNextLessonRef(languageId, completed);
 
   return (
     <>
@@ -37,10 +45,15 @@ export default function LearnPathPage() {
       <main className="mx-auto w-full max-w-xl flex-1 px-4 pb-20 pt-8">
         <section className="animate-fade-up mb-8 text-center">
           <div className="text-5xl">{language.flag}</div>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">{language.name}</h1>
-          <p className="mt-1 text-secondary">{language.nativeName}</p>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight">
+            {language.name}
+          </h1>
+          <p className="mt-1 font-semibold text-secondary">{language.nativeName}</p>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-secondary">
             {language.description}
+          </p>
+          <p className="mt-4 inline-flex rounded-full bg-primary/15 px-3 py-1 text-sm font-extrabold text-primary">
+            {doneLessons}/{totalLessons} lessons
           </p>
           {languageId === "asl" && (
             <p className="mt-3 text-sm text-secondary">
@@ -106,12 +119,23 @@ export default function LearnPathPage() {
         </section>
 
         <ol className="relative space-y-3">
-          <div className="absolute bottom-4 left-[27px] top-4 w-0.5 bg-border" aria-hidden />
+          <div
+            className="absolute bottom-4 left-[27px] top-4 w-0.5 bg-border"
+            aria-hidden
+          />
           {UNITS.map((unit, index) => {
-            const lessonId = `${languageId}-${unit.id}`;
-            const done = completed.has(lessonId);
-            const unlocked = index === 0 || completed.has(`${languageId}-${UNITS[index - 1].id}`);
-            const isNext = index === nextIndex && unlocked && !done;
+            const lessonCount = getUnitLessonCount(languageId, unit.id);
+            const unitDone = isUnitComplete(languageId, unit.id, completed);
+            const prevDone =
+              index === 0 ||
+              isUnitComplete(languageId, UNITS[index - 1].id, completed);
+            const unlocked = prevDone;
+            const doneInUnit = Array.from({ length: lessonCount }).filter(
+              (_, i) =>
+                completed.includes(`${languageId}-${unit.id}-L${i + 1}`) ||
+                completed.includes(`${languageId}-${unit.id}`),
+            ).length;
+            const isNext = next?.unitId === unit.id && unlocked && !unitDone;
             const stars = lp?.unitStars[unit.id] ?? 0;
 
             const inner = (
@@ -124,24 +148,30 @@ export default function LearnPathPage() {
               >
                 <div
                   className={`relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl ${
-                    done
+                    unitDone
                       ? "bg-success text-white"
                       : unlocked
                         ? "bg-bg"
                         : "bg-bg text-tertiary"
                   }`}
                   style={
-                    unlocked && !done
+                    unlocked && !unitDone
                       ? { boxShadow: `inset 0 0 0 3px ${unit.color}` }
                       : undefined
                   }
                 >
-                  {done ? <Check size={22} /> : unlocked ? unit.icon : <Lock size={18} />}
+                  {unitDone ? (
+                    <Check size={22} />
+                  ) : unlocked ? (
+                    unit.icon
+                  ) : (
+                    <Lock size={18} />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-center gap-2">
-                    <h2 className="font-semibold tracking-tight">{unit.title}</h2>
-                    {done && (
+                    <h2 className="font-extrabold tracking-tight">{unit.title}</h2>
+                    {unitDone && (
                       <span className="inline-flex text-warning">
                         {Array.from({ length: stars || 2 }).map((_, i) => (
                           <Star key={i} size={12} fill="currentColor" />
@@ -150,11 +180,18 @@ export default function LearnPathPage() {
                     )}
                   </div>
                   <p className="text-sm text-secondary">{unit.subtitle}</p>
+                  <p className="mt-1 text-xs font-semibold text-tertiary">
+                    {Math.min(doneInUnit, lessonCount)}/{lessonCount} lessons
+                  </p>
                   {isNext && (
-                    <p className="mt-1 text-xs font-medium text-primary">Continue here</p>
+                    <p className="mt-1 text-xs font-extrabold text-primary">
+                      Continue here
+                    </p>
                   )}
                 </div>
-                <span className="text-xs text-tertiary">+15 XP</span>
+                <span className="text-xs font-semibold text-tertiary">
+                  {lessonCount}×
+                </span>
               </div>
             );
 
