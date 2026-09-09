@@ -214,6 +214,21 @@ export function LessonPlayer({
               </>
             )}
           </div>
+          {feedback === "wrong" && exercise.type === "arrange" && (
+            <p className="mt-2 text-sm text-secondary">
+              Correct order:{" "}
+              <span className="font-extrabold text-ink">
+                {exercise.answer.join(" · ")}
+              </span>
+              <span className="mt-1 block text-tertiary">{exercise.rule}</span>
+            </p>
+          )}
+          {feedback === "wrong" &&
+            exercise.type !== "arrange" &&
+            "explanation" in exercise &&
+            exercise.explanation && (
+              <p className="mt-2 text-sm text-secondary">{exercise.explanation}</p>
+            )}
           {(() => {
             const link = reviewLink(exercise);
             return link ? (
@@ -322,8 +337,188 @@ function ExerciseView({
     );
   }
 
+  if (exercise.type === "arrange") {
+    return (
+      <ArrangeExerciseView
+        exercise={exercise}
+        disabled={disabled}
+        onAnswer={onAnswer}
+      />
+    );
+  }
+
   return (
     <MatchExercise exercise={exercise} disabled={disabled} onAnswer={onAnswer} />
+  );
+}
+
+function ArrangeExerciseView({
+  exercise,
+  disabled,
+  onAnswer,
+}: {
+  exercise: Extract<Exercise, { type: "arrange" }>;
+  disabled: boolean;
+  onAnswer: (correct: boolean) => void;
+}) {
+  const [bank, setBank] = useState(() =>
+    exercise.tokens.map((text, i) => ({ id: `${i}-${text}`, text })),
+  );
+  const [built, setBuilt] = useState<{ id: string; text: string }[]>([]);
+  const [preview, setPreview] = useState<string | null>(() => {
+    if (exercise.videoProvider && exercise.tokenKeys?.length) {
+      return exercise.tokenKeys[0] ?? null;
+    }
+    return null;
+  });
+
+  function keyForToken(text: string): string | null {
+    if (!exercise.tokenKeys?.length) return null;
+    const idx = exercise.answer.findIndex((t) => t === text);
+    if (idx >= 0) return exercise.tokenKeys[idx] ?? null;
+    // Fallback: slugify the gloss itself
+    return text.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  }
+
+  function pick(id: string) {
+    if (disabled) return;
+    const chip = bank.find((c) => c.id === id);
+    if (!chip) return;
+    const key = keyForToken(chip.text);
+    if (key && exercise.videoProvider) setPreview(key);
+    setBank((b) => b.filter((c) => c.id !== id));
+    setBuilt((b) => [...b, chip]);
+  }
+
+  function unpick(id: string) {
+    if (disabled) return;
+    const chip = built.find((c) => c.id === id);
+    if (!chip) return;
+    const key = keyForToken(chip.text);
+    if (key && exercise.videoProvider) setPreview(key);
+    setBuilt((b) => b.filter((c) => c.id !== id));
+    setBank((b) => [...b, chip]);
+  }
+
+  function check() {
+    const ok =
+      built.length === exercise.answer.length &&
+      built.every((c, i) => c.text === exercise.answer[i]);
+    onAnswer(ok);
+  }
+
+  return (
+    <div>
+      <p className="inline-flex rounded-full bg-primary/15 px-2.5 py-1 text-xs font-extrabold text-primary">
+        {exercise.pattern}
+      </p>
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight">{exercise.prompt}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-secondary">{exercise.rule}</p>
+      <p className="mt-3 rounded-[12px] bg-bg px-3 py-2 text-sm font-semibold text-secondary">
+        Meaning: <span className="text-ink">{exercise.english}</span>
+      </p>
+
+      {exercise.videoProvider && exercise.tokenKeys && (
+        <div className="mt-4">
+          <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-tertiary">
+            Watch each gloss (one sign each)
+          </p>
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {exercise.answer.map((gloss, i) => {
+              const key = exercise.tokenKeys![i];
+              const active = preview === key;
+              return (
+                <button
+                  key={`${gloss}-${i}`}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => setPreview(key)}
+                  className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${
+                    active
+                      ? "bg-primary text-white"
+                      : "border border-border bg-bg text-secondary hover:border-primary/50"
+                  }`}
+                >
+                  {gloss}
+                </button>
+              );
+            })}
+          </div>
+          {preview && (
+            <SignDictionaryVideo
+              key={preview}
+              provider={exercise.videoProvider}
+              word={preview}
+            />
+          )}
+        </div>
+      )}
+
+      <div className="mt-5 min-h-[56px] rounded-[14px] border-2 border-dashed border-border bg-[#fff7fb] p-3">
+        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-tertiary">
+          Your sentence
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {built.length === 0 && (
+            <span className="text-sm text-tertiary">
+              Tap glosses below to build the order
+            </span>
+          )}
+          {built.map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              disabled={disabled}
+              onClick={() => unpick(chip.id)}
+              className="rounded-full bg-primary px-3 py-1.5 text-sm font-extrabold text-white"
+            >
+              {chip.text}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {bank.map((chip) => (
+          <button
+            key={chip.id}
+            type="button"
+            disabled={disabled}
+            onClick={() => pick(chip.id)}
+            className="rounded-full border border-border bg-bg px-3 py-1.5 text-sm font-extrabold hover:border-primary/50"
+          >
+            {chip.text}
+          </button>
+        ))}
+      </div>
+
+      {exercise.explanation && (
+        <p className="mt-3 text-sm text-tertiary">Note: {exercise.explanation}</p>
+      )}
+
+      <div className="mt-5 flex gap-2">
+        <button
+          type="button"
+          disabled={disabled || built.length === 0}
+          onClick={() => {
+            setBank(exercise.tokens.map((text, i) => ({ id: `${i}-${text}`, text })));
+            setBuilt([]);
+            if (exercise.tokenKeys?.[0]) setPreview(exercise.tokenKeys[0]);
+          }}
+          className="rounded-full border border-border px-4 py-2.5 text-sm font-extrabold text-secondary hover:border-primary hover:text-primary disabled:opacity-50"
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          disabled={disabled || built.length !== exercise.answer.length}
+          onClick={check}
+          className="btn-hot flex-1 rounded-full py-2.5 text-sm font-extrabold disabled:opacity-50"
+        >
+          Check order
+        </button>
+      </div>
+    </div>
   );
 }
 

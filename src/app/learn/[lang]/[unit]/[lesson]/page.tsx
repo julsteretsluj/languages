@@ -14,7 +14,7 @@ import {
 } from "@/lib/lessons";
 import { getLangProgress } from "@/lib/progress";
 import type { LanguageId, UnitId } from "@/lib/types";
-import { getUnit, UNITS } from "@/lib/units";
+import { getUnit, getUnitsForLanguage, isUnitForLanguage } from "@/lib/units";
 
 export default function LessonPlayPage() {
   const params = useParams<{ lang: string; unit: string; lesson: string }>();
@@ -40,17 +40,19 @@ export default function LessonPlayPage() {
   if (!language || !unit || !Number.isFinite(lessonIndex) || lessonIndex < 1) {
     notFound();
   }
+  if (!isUnitForLanguage(unitId, languageId)) notFound();
 
+  const units = getUnitsForLanguage(languageId);
   const lp = ready ? getLangProgress(progress, languageId) : null;
   const completed = lp?.completedLessons ?? [];
   const lessonCount = getUnitLessonCount(languageId, unitId);
 
   if (lessonIndex > lessonCount || !lesson) notFound();
 
-  const unitIndex = UNITS.findIndex((u) => u.id === unitId);
+  const unitIndex = units.findIndex((u) => u.id === unitId);
   const prevUnitDone =
     unitIndex === 0 ||
-    isUnitComplete(languageId, UNITS[unitIndex - 1].id, completed);
+    isUnitComplete(languageId, units[unitIndex - 1].id, completed);
   const prevLessonDone =
     lessonIndex === 1 ||
     completed.includes(`${languageId}-${unitId}-L${lessonIndex - 1}`) ||

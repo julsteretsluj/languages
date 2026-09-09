@@ -1,6 +1,6 @@
 import type { UnitId, VocabItem } from "../types";
 
-type Bank = Record<UnitId, VocabItem[]>;
+type Bank = Partial<Record<UnitId, VocabItem[]>>;
 
 /**
  * International Sign vocab keyed to sonastik.ead.ee word IDs

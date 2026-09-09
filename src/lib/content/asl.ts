@@ -1,6 +1,6 @@
 import type { UnitId, VocabItem } from "../types";
 
-type Bank = Record<UnitId, VocabItem[]>;
+type Bank = Partial<Record<UnitId, VocabItem[]>>;
 
 /** ASL vocab keyed to https://www.signasl.org/sign/{signasl} */
 function s(

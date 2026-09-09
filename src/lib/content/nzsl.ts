@@ -1,6 +1,6 @@
 import type { UnitId, VocabItem } from "../types";
 
-type Bank = Record<UnitId, VocabItem[]>;
+type Bank = Partial<Record<UnitId, VocabItem[]>>;
 
 /**
  * NZSL vocab keyed to https://www.nzsl.nz/signs/{nzsl}

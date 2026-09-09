@@ -41,7 +41,25 @@ export type UnitId =
   | "translating"
   | "slang"
   | "quotes"
-  | "media";
+  | "media"
+  // Language-specific specialty units
+  | "handshapes"
+  | "nonmanuals"
+  | "deafculture"
+  | "tones"
+  | "characters"
+  | "measurewords"
+  | "cases"
+  | "declensions"
+  | "conjugations"
+  | "serestar"
+  | "subjunctive"
+  | "formality"
+  | "separable"
+  | "dutcharticles"
+  | "particles"
+  | "pepeha"
+  | "marae";
 
 export type Modality = "signed" | "spoken";
 
@@ -52,7 +70,8 @@ export type ExerciseType =
   | "translate"
   | "match"
   | "fill_blank"
-  | "true_false";
+  | "true_false"
+  | "arrange";
 
 export interface VocabItem {
   term: string;
@@ -90,6 +109,11 @@ export interface UnitDef {
   color: string;
   /** Highest CEFR band this unit is designed to reach */
   cefr: CefrLevel;
+  /**
+   * If set, unit only appears on these language paths.
+   * Omit for shared units available to every language.
+   */
+  languages?: LanguageId[];
 }
 
 export interface ExerciseMedia {
@@ -153,12 +177,34 @@ export interface TrueFalseExercise extends ExerciseMedia {
   explanation?: string;
 }
 
+export interface ArrangeExercise extends ExerciseMedia {
+  type: "arrange";
+  id: string;
+  prompt: string;
+  /** Rule being practiced, e.g. "SVO" or "Topic–comment" */
+  pattern: string;
+  /** Short teaching tip shown under the prompt */
+  rule: string;
+  /** English meaning of the target sentence */
+  english: string;
+  /** Correct token order */
+  answer: string[];
+  /** Shuffled chips shown to the learner (includes answer tokens) */
+  tokens: string[];
+  /** Dictionary keys for each answer token (signed languages) */
+  tokenKeys?: string[];
+  /** Which sign dictionary to use for token videos */
+  videoProvider?: "asl" | "bsl" | "isl" | "nzsl";
+  explanation?: string;
+}
+
 export type Exercise =
   | MultipleChoiceExercise
   | TranslateExercise
   | MatchExercise
   | FillBlankExercise
-  | TrueFalseExercise;
+  | TrueFalseExercise
+  | ArrangeExercise;
 
 export interface Lesson {
   id: string;

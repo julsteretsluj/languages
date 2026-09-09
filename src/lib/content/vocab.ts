@@ -2,11 +2,12 @@ import { UNIT_CEFR } from "../cefr";
 import type { CefrLevel, LanguageId, UnitId, VocabItem } from "../types";
 import { ASL_VOCAB } from "./asl";
 import { BSL_VOCAB } from "./bsl";
+import { EXTRA_VOCAB } from "./extra-units";
 import { ISL_VOCAB } from "./isl";
 import { NZSL_VOCAB } from "./nzsl";
 import { TIER_BANKS } from "./tiers";
 
-type Bank = Record<UnitId, VocabItem[]>;
+type Bank = Partial<Record<UnitId, VocabItem[]>>;
 
 const signedShared = {
   grammar: [
@@ -1614,8 +1615,8 @@ function mergeVocab(base: VocabItem[], extra: VocabItem[]): VocabItem[] {
 export function getVocab(languageId: LanguageId, unitId: UnitId): VocabItem[] {
   const base = withDefaultCefr(VOCAB[languageId][unitId] ?? [], unitId);
   const tiers = TIER_BANKS[languageId]?.[unitId] ?? [];
-  // Every unit carries A1→C2 bands so finishing the path reaches mastery.
-  return mergeVocab(base, tiers);
+  const extras = EXTRA_VOCAB[languageId]?.[unitId] ?? [];
+  return mergeVocab(mergeVocab(base, tiers), extras);
 }
 
 export function getVocabByCefr(

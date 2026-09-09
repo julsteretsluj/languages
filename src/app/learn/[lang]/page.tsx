@@ -16,7 +16,7 @@ import {
 } from "@/lib/lessons";
 import { getLangProgress } from "@/lib/progress";
 import type { LanguageId } from "@/lib/types";
-import { UNITS } from "@/lib/units";
+import { getUnitsForLanguage } from "@/lib/units";
 
 export default function LearnPathPage() {
   const params = useParams<{ lang: string }>();
@@ -32,6 +32,7 @@ export default function LearnPathPage() {
   if (!language) notFound();
 
   const languageId = language.id as LanguageId;
+  const units = getUnitsForLanguage(languageId);
   const lp = ready ? getLangProgress(progress, languageId) : null;
   const completed = lp?.completedLessons ?? [];
   const totalLessons = getTotalLessonCount(languageId);
@@ -58,7 +59,7 @@ export default function LearnPathPage() {
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-1.5">
             {CEFR_LEVELS.map((level) => {
-              const unitsAtLevel = UNITS.filter((u) => u.cefr === level);
+              const unitsAtLevel = units.filter((u) => u.cefr === level);
               const doneAtLevel = unitsAtLevel.filter((u) =>
                 isUnitComplete(languageId, u.id, completed),
               ).length;
@@ -148,12 +149,12 @@ export default function LearnPathPage() {
             className="absolute bottom-4 left-[27px] top-4 w-0.5 bg-border"
             aria-hidden
           />
-          {UNITS.map((unit, index) => {
+          {units.map((unit, index) => {
             const lessonCount = getUnitLessonCount(languageId, unit.id);
             const unitDone = isUnitComplete(languageId, unit.id, completed);
             const prevDone =
               index === 0 ||
-              isUnitComplete(languageId, UNITS[index - 1].id, completed);
+              isUnitComplete(languageId, units[index - 1].id, completed);
             const unlocked = prevDone;
             const doneInUnit = Array.from({ length: lessonCount }).filter(
               (_, i) =>

@@ -1,4 +1,9 @@
 import { getVocab } from "./content/vocab";
+import {
+  getGrammarSentences,
+  getGrammarSentencesByCefr,
+  type GrammarSentence,
+} from "./content/grammar-sentences";
 import { CEFR_LEVELS, CEFR_META, cefrIndex } from "./cefr";
 import { getLanguage } from "./languages";
 import { toSignaslSlug } from "./signasl";
@@ -11,7 +16,7 @@ import type {
   UnitId,
   VocabItem,
 } from "./types";
-import { UNITS } from "./units";
+import { getUnitsForLanguage, UNITS } from "./units";
 
 type LessonKind =
   | "focus"
@@ -21,7 +26,9 @@ type LessonKind =
   | "to_en"
   | "from_en"
   | "true_false"
-  | "mixed";
+  | "mixed"
+  | "arrange"
+  | "grammar_teach";
 
 type LessonSpec = {
   kind: LessonKind;
@@ -30,6 +37,8 @@ type LessonSpec = {
   items: VocabItem[];
   xp: number;
   cefr: CefrLevel;
+  /** Grammar word-order sentences for arrange / teach lessons */
+  sentences?: GrammarSentence[];
 };
 
 function hashSeed(...parts: (string | number)[]): number {
@@ -326,6 +335,119 @@ function makeFill(
   };
 }
 
+function makeArrange(
+  languageId: LanguageId,
+  unitId: UnitId,
+  lessonIndex: number,
+  sentence: GrammarSentence,
+  i: number,
+  rand: () => number,
+): Exercise {
+  // Signed languages: one dictionary gloss per chip (no multi-word compounds)
+  const answer = sentence.tokens.map((t) => {
+    if (languageId === "asl" || languageId === "bsl") {
+      const single = t.trim().split(/[\s:/]+/)[0] ?? t;
+      return single.toUpperCase();
+    }
+    return t;
+  });
+  const tokens = shuffleSeeded([...answer], rand);
+  if (tokens.join("\0") === answer.join("\0") && tokens.length > 1) {
+    [tokens[0], tokens[tokens.length - 1]] = [tokens[tokens.length - 1], tokens[0]];
+  }
+  const lang = getLanguage(languageId)!;
+  const prompt =
+    lang.modality === "signed"
+      ? "Arrange the glosses in signing order"
+      : `Arrange the words in correct ${lang.name} order`;
+
+  const tokenKeys =
+    languageId === "asl"
+      ? answer.map((t) => toSignaslSlug(t))
+      : languageId === "bsl"
+        ? answer.map((t) => toSignbslSlug(t))
+        : undefined;
+
+  const videoProvider =
+    languageId === "asl"
+      ? ("asl" as const)
+      : languageId === "bsl"
+        ? ("bsl" as const)
+        : undefined;
+
+  return {
+    type: "arrange",
+    id: `${languageId}-${unitId}-L${lessonIndex}-arr-${sentence.id}-${i}`,
+    prompt,
+    pattern: sentence.pattern,
+    rule: sentence.rule,
+    english: sentence.english,
+    answer,
+    tokens,
+    tokenKeys,
+    videoProvider,
+    explanation: sentence.note,
+    // Lead video = first gloss in the correct sentence (topic / time)
+    signaslSlug:
+      languageId === "asl" && tokenKeys?.[0] ? tokenKeys[0] : undefined,
+    signbslSlug:
+      languageId === "bsl" && tokenKeys?.[0] ? tokenKeys[0] : undefined,
+  };
+}
+
+function makeGrammarPatternMc(
+  languageId: LanguageId,
+  unitId: UnitId,
+  lessonIndex: number,
+  sentence: GrammarSentence,
+  siblings: GrammarSentence[],
+  i: number,
+  rand: () => number,
+): Exercise {
+  const distractors = shuffleSeeded(
+    siblings
+      .filter((s) => s.pattern !== sentence.pattern)
+      .map((s) => s.pattern),
+    rand,
+  ).slice(0, 3);
+  while (distractors.length < 3) {
+    distractors.push(`Pattern ${distractors.length + 1}`);
+  }
+  return {
+    type: "multiple_choice",
+    id: `${languageId}-${unitId}-L${lessonIndex}-gpat-${i}`,
+    prompt: `Which word-order pattern builds “${sentence.english}”?`,
+    options: shuffleSeeded([sentence.pattern, ...distractors.slice(0, 3)], rand),
+    answer: sentence.pattern,
+    explanation: sentence.rule,
+  };
+}
+
+function makeGrammarRuleTf(
+  languageId: LanguageId,
+  unitId: UnitId,
+  lessonIndex: number,
+  sentence: GrammarSentence,
+  i: number,
+  rand: () => number,
+): Exercise {
+  const truthful = rand() > 0.4;
+  const wrongRule =
+    sentence.pattern.includes("SVO")
+      ? "Always put the verb at the very end of every sentence."
+      : sentence.pattern.toLowerCase().includes("topic")
+        ? "Always put the verb first, before any topic."
+        : "Word order never matters in this language.";
+  return {
+    type: "true_false",
+    id: `${languageId}-${unitId}-L${lessonIndex}-grule-${i}`,
+    prompt: "True or false about this grammar rule?",
+    statement: truthful ? sentence.rule : wrongRule,
+    answer: truthful,
+    explanation: sentence.rule,
+  };
+}
+
 function buildExercisesForSpec(
   languageId: LanguageId,
   unitId: UnitId,
@@ -336,6 +458,28 @@ function buildExercisesForSpec(
   const rand = mulberry32(hashSeed(languageId, unitId, lessonIndex, spec.kind));
   const items = spec.items;
   const exercises: Exercise[] = [];
+  const sentences = spec.sentences ?? [];
+
+  if (spec.kind === "arrange") {
+    sentences.forEach((s, i) => {
+      exercises.push(makeArrange(languageId, unitId, lessonIndex, s, i, rand));
+    });
+    return exercises;
+  }
+
+  if (spec.kind === "grammar_teach") {
+    const all = getGrammarSentences(languageId);
+    sentences.forEach((s, i) => {
+      exercises.push(
+        makeGrammarPatternMc(languageId, unitId, lessonIndex, s, all, i, rand),
+      );
+      exercises.push(makeGrammarRuleTf(languageId, unitId, lessonIndex, s, i, rand));
+      exercises.push(makeArrange(languageId, unitId, lessonIndex, s, i + 50, rand));
+      // Second arrange attempt with reshuffle for production practice
+      exercises.push(makeArrange(languageId, unitId, lessonIndex, s, i + 80, rand));
+    });
+    return exercises;
+  }
 
   if (spec.kind === "match") {
     exercises.push(makeMatch(languageId, unitId, lessonIndex, items));
@@ -382,7 +526,96 @@ function buildExercisesForSpec(
     exercises.push(makeMatch(languageId, unitId, lessonIndex, items));
   }
 
+  // Grammar mixed lessons also include arrange practice when sentences provided
+  if (unitId === "grammar" && sentences.length) {
+    for (let j = 0; j < sentences.length; j++) {
+      exercises.push(makeArrange(languageId, unitId, lessonIndex, sentences[j], j + 200, rand));
+    }
+  }
+
   return exercises;
+}
+
+function getGrammarLessonSpecs(languageId: LanguageId): LessonSpec[] {
+  const sentences = getGrammarSentences(languageId);
+  const vocab = getVocab(languageId, "grammar");
+  const specs: LessonSpec[] = [];
+
+  // Opening: how word order works in this language
+  const opener = sentences.slice(0, Math.min(3, sentences.length));
+  if (opener.length) {
+    specs.push({
+      kind: "grammar_teach",
+      title: "How word order works",
+      subtitle: "Learn the core arranging pattern, then build sentences",
+      items: vocab.slice(0, 3),
+      sentences: opener,
+      xp: 20,
+      cefr: "A1",
+    });
+  }
+
+  for (const level of CEFR_LEVELS) {
+    const band = getGrammarSentencesByCefr(languageId, level);
+    if (!band.length) continue;
+    const meta = CEFR_META[level];
+
+    specs.push({
+      kind: "grammar_teach",
+      title: `${level}: ${band[0].pattern}`,
+      subtitle: `${meta.title} · ${band[0].rule}`,
+      items: vocab.filter((v) => (v.cefr ?? "A1") === level).slice(0, 3),
+      sentences: band.slice(0, 2),
+      xp: 16 + cefrIndex(level) * 2,
+      cefr: level,
+    });
+
+    specs.push({
+      kind: "arrange",
+      title: `${level}: arrange sentences`,
+      subtitle: `Put words in ${meta.label} order`,
+      items: [],
+      sentences: band,
+      xp: 18 + cefrIndex(level) * 2,
+      cefr: level,
+    });
+
+    // Light metalanguage vocab still useful, but after arranging practice
+    const vocabBand = vocab.filter((v) => (v.cefr ?? "A1") === level);
+    if (vocabBand.length) {
+      specs.push({
+        kind: "focus",
+        title: `${level}: grammar terms`,
+        subtitle: "Name the patterns you just used",
+        items: vocabBand.slice(0, 5),
+        sentences: band.slice(0, 2),
+        xp: 12 + cefrIndex(level),
+        cefr: level,
+      });
+    }
+
+    specs.push({
+      kind: "mixed",
+      title: `${level} grammar challenge`,
+      subtitle: "Terms + sentence arranging",
+      items: vocabBand.length ? vocabBand : vocab.slice(0, 4),
+      sentences: band,
+      xp: 22 + cefrIndex(level) * 2,
+      cefr: level,
+    });
+  }
+
+  specs.push({
+    kind: "arrange",
+    title: "C2 arranging mastery",
+    subtitle: "Build every pattern from A1 through C2",
+    items: [],
+    sentences,
+    xp: 40,
+    cefr: "C2",
+  });
+
+  return specs;
 }
 
 /** Build CEFR-banded lessons — every unit climbs A1→C2. */
@@ -390,6 +623,10 @@ export function getUnitLessonSpecs(
   languageId: LanguageId,
   unitId: UnitId,
 ): LessonSpec[] {
+  if (unitId === "grammar") {
+    return getGrammarLessonSpecs(languageId);
+  }
+
   const vocab = getVocab(languageId, unitId);
   if (!vocab.length) return [];
 
@@ -509,7 +746,7 @@ export function getUnitLessons(languageId: LanguageId, unitId: UnitId): Lesson[]
 
 export function getAllLessonIds(languageId: LanguageId): string[] {
   const ids: string[] = [];
-  for (const unit of UNITS) {
+  for (const unit of getUnitsForLanguage(languageId)) {
     const count = getUnitLessonCount(languageId, unit.id);
     for (let i = 1; i <= count; i++) {
       ids.push(`${languageId}-${unit.id}-L${i}`);
@@ -542,7 +779,7 @@ export function getNextLessonRef(
   languageId: LanguageId,
   completedLessons: string[],
 ): { unitId: UnitId; lessonIndex: number } | null {
-  for (const unit of UNITS) {
+  for (const unit of getUnitsForLanguage(languageId)) {
     const count = getUnitLessonCount(languageId, unit.id);
     for (let i = 1; i <= count; i++) {
       const id = `${languageId}-${unit.id}-L${i}`;

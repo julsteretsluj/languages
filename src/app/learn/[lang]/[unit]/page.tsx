@@ -13,7 +13,7 @@ import {
 } from "@/lib/lessons";
 import { getLangProgress } from "@/lib/progress";
 import type { LanguageId, UnitId } from "@/lib/types";
-import { getUnit, UNITS } from "@/lib/units";
+import { getUnit, getUnitsForLanguage, isUnitForLanguage } from "@/lib/units";
 
 export default function UnitLessonsPage() {
   const params = useParams<{ lang: string; unit: string }>();
@@ -25,12 +25,15 @@ export default function UnitLessonsPage() {
 
   const languageId = language.id as LanguageId;
   const unitId = unit.id as UnitId;
+  if (!isUnitForLanguage(unitId, languageId)) notFound();
+
+  const units = getUnitsForLanguage(languageId);
   const lp = ready ? getLangProgress(progress, languageId) : null;
   const completed = lp?.completedLessons ?? [];
-  const unitIndex = UNITS.findIndex((u) => u.id === unitId);
+  const unitIndex = units.findIndex((u) => u.id === unitId);
   const prevDone =
     unitIndex === 0 ||
-    isUnitComplete(languageId, UNITS[unitIndex - 1].id, completed);
+    isUnitComplete(languageId, units[unitIndex - 1].id, completed);
   const specs = getUnitLessonSpecs(languageId, unitId);
 
   if (ready && !prevDone) {

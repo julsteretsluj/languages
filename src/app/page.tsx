@@ -6,7 +6,7 @@ import { useProgress } from "@/components/ProgressProvider";
 import { LANGUAGES } from "@/lib/languages";
 import { getTotalLessonCount, isUnitComplete } from "@/lib/lessons";
 import { getLangProgress } from "@/lib/progress";
-import { UNITS } from "@/lib/units";
+import { getUnitsForLanguage, UNITS } from "@/lib/units";
 import type { LanguageId } from "@/lib/types";
 
 const CHIP_STYLES = [
@@ -61,7 +61,7 @@ export default function HomePage() {
             </p>
             <p className="mt-5 flex flex-wrap gap-2 text-sm font-semibold">
               <span className="rounded-full bg-[#ff2d95]/15 px-3 py-1 text-primary">
-                {UNITS.length} units · A1→C2
+                Shared path + language specialties
               </span>
               <span className="rounded-full bg-[#00d4ff]/20 px-3 py-1 text-[#007a99]">
                 {LANGUAGES.length} languages
@@ -85,15 +85,17 @@ export default function HomePage() {
             {LANGUAGES.map((lang, index) => {
               const lp = ready ? getLangProgress(progress, lang.id) : null;
               const completed = lp?.completedLessons ?? [];
+              const pathUnits = getUnitsForLanguage(lang.id);
               const total = getTotalLessonCount(lang.id);
               const done = completed.filter((id) =>
                 id.startsWith(`${lang.id}-`),
               ).length;
-              const unitsDone = UNITS.filter((u) =>
+              const unitsDone = pathUnits.filter((u) =>
                 isUnitComplete(lang.id, u.id, completed),
               ).length;
               const pct = total ? Math.round((done / total) * 100) : 0;
               const chip = CHIP_STYLES[index % CHIP_STYLES.length];
+              const specialtyCount = pathUnits.filter((u) => u.languages).length;
 
               return (
                 <Link
@@ -137,7 +139,8 @@ export default function HomePage() {
                     <div className="relative mt-4">
                       <div className="mb-1 flex justify-between text-xs font-semibold text-tertiary">
                         <span>
-                          {done}/{total} lessons · {unitsDone}/{UNITS.length} units
+                          {done}/{total} lessons · {unitsDone}/{pathUnits.length} units
+                          {specialtyCount > 0 ? ` · ${specialtyCount} specialty` : ""}
                         </span>
                         <span>{pct}%</span>
                       </div>
@@ -169,17 +172,17 @@ export default function HomePage() {
             <div>
               <h2 className="text-xl font-extrabold tracking-tight">Your learning path</h2>
               <p className="mt-1 max-w-2xl text-secondary">
-                Every language climbs from A1 foundations to C2 mastery — same unit order,
-                with CEFR-banded lessons inside each topic. Signed languages use a parallel
-                proficiency frame mapped to the same labels.
+                Every language climbs from A1 to C2 on a shared core path, plus specialty
+                units for what that language uniquely needs — tones, cases, Deaf culture,
+                pepeha, and more.
               </p>
             </div>
             <span className="inline-flex w-fit rounded-full bg-[#b8ff3c]/35 px-3 py-1 text-xs font-extrabold text-[#3d6b00]">
-              32 colorful units
+              Core + language extras
             </span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
-            {UNITS.map((unit, i) => (
+            {UNITS.filter((u) => !u.languages).map((unit, i) => (
               <span
                 key={unit.id}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold ${
@@ -191,6 +194,9 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+          <p className="mt-4 text-xs font-semibold text-tertiary">
+            Specialty examples: Handshapes · Tones · Cases · Ser &amp; Estar · Pepeha · Marae
+          </p>
         </section>
       </main>
     </>

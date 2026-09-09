@@ -1,4 +1,4 @@
-import type { UnitDef } from "./types";
+import type { LanguageId, UnitDef, UnitId } from "./types";
 import { UNIT_CEFR } from "./cefr";
 
 /** Pedagogical order: foundations → words → daily life → society → skills → media (A1→C2). */
@@ -6,7 +6,7 @@ export const UNITS: UnitDef[] = [
   {
     id: "grammar",
     title: "Grammar",
-    subtitle: "How the language fits together",
+    subtitle: "Word order — learn how to arrange sentences",
     icon: "📐",
     color: "#FF2D95",
     cefr: UNIT_CEFR.grammar,
@@ -171,6 +171,160 @@ export const UNITS: UnitDef[] = [
     color: "#AF52DE",
     cefr: UNIT_CEFR.culture,
   },
+  // ——— Language specialty units (filtered per path) ———
+  {
+    id: "handshapes",
+    title: "Handshapes",
+    subtitle: "Classifier handshapes that stand for things in space",
+    icon: "✋",
+    color: "#FF2D95",
+    cefr: UNIT_CEFR.handshapes,
+    languages: ["asl", "bsl", "isl", "nzsl"],
+  },
+  {
+    id: "nonmanuals",
+    title: "Non-manuals",
+    subtitle: "Face, brows, and head movement that carry grammar",
+    icon: "😮",
+    color: "#5856D6",
+    cefr: UNIT_CEFR.nonmanuals,
+    languages: ["asl", "bsl", "isl", "nzsl"],
+  },
+  {
+    id: "deafculture",
+    title: "Deaf Culture",
+    subtitle: "Community values, etiquette, and identity",
+    icon: "🤟",
+    color: "#1D1D1F",
+    cefr: UNIT_CEFR.deafculture,
+    languages: ["asl", "bsl", "isl", "nzsl"],
+  },
+  {
+    id: "tones",
+    title: "Tones",
+    subtitle: "The four tones that change meaning",
+    icon: "🎵",
+    color: "#FF3B30",
+    cefr: UNIT_CEFR.tones,
+    languages: ["mandarin"],
+  },
+  {
+    id: "characters",
+    title: "Characters",
+    subtitle: "Radicals, strokes, and reading hanzi",
+    icon: "漢",
+    color: "#FF9500",
+    cefr: UNIT_CEFR.characters,
+    languages: ["mandarin"],
+  },
+  {
+    id: "measurewords",
+    title: "Measure Words",
+    subtitle: "Classifiers between numbers and nouns",
+    icon: "🔢",
+    color: "#30B0C7",
+    cefr: UNIT_CEFR.measurewords,
+    languages: ["mandarin"],
+  },
+  {
+    id: "cases",
+    title: "Cases",
+    subtitle: "Nominative, accusative, and the rest",
+    icon: "⚖️",
+    color: "#AF52DE",
+    cefr: UNIT_CEFR.cases,
+    languages: ["latin"],
+  },
+  {
+    id: "declensions",
+    title: "Declensions",
+    subtitle: "Noun ending patterns by stem class",
+    icon: "📜",
+    color: "#5856D6",
+    cefr: UNIT_CEFR.declensions,
+    languages: ["latin"],
+  },
+  {
+    id: "conjugations",
+    title: "Conjugations",
+    subtitle: "Verb endings across persons and tenses",
+    icon: "🔀",
+    color: "#FF2D55",
+    cefr: UNIT_CEFR.conjugations,
+    languages: ["latin"],
+  },
+  {
+    id: "serestar",
+    title: "Ser & Estar",
+    subtitle: "Two ways to say “to be”",
+    icon: "🪞",
+    color: "#FF6B00",
+    cefr: UNIT_CEFR.serestar,
+    languages: ["spanish"],
+  },
+  {
+    id: "formality",
+    title: "Tú & Usted",
+    subtitle: "Formal and informal address",
+    icon: "🎩",
+    color: "#5856D6",
+    cefr: UNIT_CEFR.formality,
+    languages: ["spanish"],
+  },
+  {
+    id: "subjunctive",
+    title: "Subjunctive",
+    subtitle: "Mood for wishes, doubts, and emotion",
+    icon: "💫",
+    color: "#AF52DE",
+    cefr: UNIT_CEFR.subjunctive,
+    languages: ["spanish"],
+  },
+  {
+    id: "dutcharticles",
+    title: "De & Het",
+    subtitle: "Common vs neuter articles",
+    icon: "📰",
+    color: "#FF9500",
+    cefr: UNIT_CEFR.dutcharticles,
+    languages: ["dutch"],
+  },
+  {
+    id: "separable",
+    title: "Separable Verbs",
+    subtitle: "Prefixes that split off in main clauses",
+    icon: "✂️",
+    color: "#FF2D55",
+    cefr: UNIT_CEFR.separable,
+    languages: ["dutch"],
+  },
+  {
+    id: "particles",
+    title: "Particles",
+    subtitle: "kei te, i, ka — tense and aspect markers",
+    icon: "🧩",
+    color: "#34C759",
+    cefr: UNIT_CEFR.particles,
+    languages: ["maori"],
+  },
+  {
+    id: "pepeha",
+    title: "Pepeha",
+    subtitle: "Introduce yourself through place and people",
+    icon: "🏔️",
+    color: "#30B0C7",
+    cefr: UNIT_CEFR.pepeha,
+    languages: ["maori"],
+  },
+  {
+    id: "marae",
+    title: "Marae",
+    subtitle: "Protocol, roles, and sacred spaces",
+    icon: "🏛️",
+    color: "#AC8E68",
+    cefr: UNIT_CEFR.marae,
+    languages: ["maori"],
+  },
   {
     id: "medical",
     title: "Medical",
@@ -263,4 +417,20 @@ export const UNITS: UnitDef[] = [
 
 export function getUnit(id: string): UnitDef | undefined {
   return UNITS.find((u) => u.id === id);
+}
+
+/** Shared + language-specific units for a learning path. */
+export function getUnitsForLanguage(languageId: LanguageId): UnitDef[] {
+  return UNITS.filter(
+    (unit) => !unit.languages || unit.languages.includes(languageId),
+  );
+}
+
+export function isUnitForLanguage(
+  unitId: UnitId,
+  languageId: LanguageId,
+): boolean {
+  const unit = getUnit(unitId);
+  if (!unit) return false;
+  return !unit.languages || unit.languages.includes(languageId);
 }
